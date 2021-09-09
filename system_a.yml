@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: System A
+
+Resources:
+  Topic:
+    Type: AWS::SNS::Topic
+
+Outputs:
+  TopicArn:
+    Value: !Ref Topic
+    Export:
+      Name: SystemASnsTopicArn

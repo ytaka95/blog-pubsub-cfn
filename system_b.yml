@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: System B
+
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    # Properties:
+    #   RedrivePolicy:
+    #     deadLetterTargetArn: !GetAtt DLQueue.Arn
+    #     maxReceiveCount: 3
+
+  # DLQueue:
+  #   Type: AWS::SQS::Queue
+
+  SnsSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: sqs
+      Endpoint: !GetAtt Queue.Arn
+      TopicArn: !ImportValue SystemASnsTopicArn
+
+  QueuePolycy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Id: AllowSnsTopicToSendMessage
+        Statement:
+          - Sid: 1
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - sqs:SendMessage
+            Resource: "*"
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  !ImportValue SystemASnsTopicArn
+      Queues:
+        - !Ref Queue
